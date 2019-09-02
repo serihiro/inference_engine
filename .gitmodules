@@ -1,0 +1,3 @@
+[submodule "external/onnx"]
+	path = external/onnx
+	url = git@github.com:onnx/onnx.git
