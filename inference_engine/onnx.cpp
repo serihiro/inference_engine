@@ -40,11 +40,13 @@ void abstract_parameter_table_from_onnx_model(
     std::map<std::string, inference_engine::onnx::parameter> &table) {
   void *data;
   long long total_size;
+  ::google::protobuf::int32 data_type;
+  std::vector<int> dims;
   for (::onnx::TensorProto const &tensor : graph.initializer()) {
-    std::vector<int> dims(tensor.dims().begin(), tensor.dims().end());
+    dims = std::vector<int>(tensor.dims().begin(), tensor.dims().end());
     total_size =
         std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<int>());
-    ::google::protobuf::int32 data_type = tensor.data_type();
+    data_type = tensor.data_type();
 
     // FIXME workaround
     data = static_cast<void *>(new float[total_size]);
@@ -88,5 +90,4 @@ abstract_all_nodes_from_onnx_model(::onnx::GraphProto &graph) {
   return nodes;
 }
 } // namespace onnx
-
 } // namespace inference_engine
