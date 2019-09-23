@@ -4,7 +4,7 @@
 namespace inference_engine {
 namespace backend {
 
-// Calculate C[m * n] = A[m x k] * B[k * n] + D[k]
+// Calculate C[m * n] = A[m x k] * B[k * n] + D[m * n]
 void gemm(int m, int n, int k, float *a, float *b, float *c, float *d);
 
 // Apply relu function to all elements of matrix a

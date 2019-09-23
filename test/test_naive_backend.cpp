@@ -1,5 +1,6 @@
 #include "../inference_engine/backend.hpp"
 #include "util.hpp"
+#include <chrono>
 #include <iostream>
 
 bool test_relu1() {
@@ -89,6 +90,29 @@ bool test_gem3() {
   return inference_engine::test::assert_array_eq_float(c, expected, m * n);
 }
 
+bool test_gem4() {
+  int m = 1024;
+  int k = 1024;
+  int n = 1024;
+  float a[m * k];
+  float b[k * n];
+  float c[m * n];
+  float d[m * n];
+  array_arange(a, m * k);
+  array_arange(b, k * n);
+  array_zeros(c, m * n);
+  array_arange(d, m * n);
+
+  auto start = std::chrono::system_clock::now();
+  inference_engine::backend::gemm(m, n, k, a, b, c, d);
+  auto end = std::chrono::system_clock::now();
+  auto diff = end - start;
+  auto elapsed_msec =
+      std::chrono::duration_cast<std::chrono::milliseconds>(diff).count();
+  std::cout << elapsed_msec << std::endl;
+  return true;
+}
+
 int main() {
   if (!test_relu1()) {
     std::cout << "test_relu1 failed" << std::endl;
@@ -111,6 +135,11 @@ int main() {
   }
 
   if (!test_gem3()) {
+    std::cout << "test_gem3 failed" << std::endl;
+    return 1;
+  }
+
+  if (!test_gem4()) {
     std::cout << "test_gem3 failed" << std::endl;
     return 1;
   }

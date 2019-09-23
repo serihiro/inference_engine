@@ -1,6 +1,7 @@
 #include <fstream>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <vector>
 
