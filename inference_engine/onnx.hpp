@@ -15,11 +15,6 @@ struct parameter {
   ::google::protobuf::int32 data_type;
   float *data;
 
-  // parameter(): {}
-
-  parameter(std::string name, std::vector<int> dims, float *data)
-      : name(name), dims(dims), data(data) {}
-
   parameter(std::string name, std::vector<int> dims,
             ::google::protobuf::int32 data_type, float *data)
       : name(name), dims(dims), data_type(data_type), data(data) {}

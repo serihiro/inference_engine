@@ -49,7 +49,7 @@ void abstract_parameter_table_from_onnx_model(
     // FIXME workaround
     data = static_cast<void *>(new float[total_size]);
     memset(data, 0, sizeof(float) * total_size);
-  
+
     // TODO I want to abstract typename
     if (data_type == ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT) {
       unpack_data_from_raw_data(tensor, total_size, data);
