@@ -36,7 +36,7 @@ void unpack_data_from_raw_data(const ::onnx::TensorProto &tensor,
             static_cast<char *>(output));
 }
 
-void abstract_parameter_table_from_onnx_model(
+void abstract_parameter_table(
     ::onnx::GraphProto &graph,
     std::map<std::string, inference_engine::onnx::parameter> &table) {
 
@@ -92,7 +92,33 @@ void add_new_parameter(
                           parameter_name, dims, data_type, data, total_size)));
 }
 
-void initialize_parameter_table_from_onnx_model(
+void reset_parameter_data(
+    std::string target_parameter_name,
+    std::map<std::string, inference_engine::onnx::parameter> &table) {
+  if (table.at(target_parameter_name).data_type ==
+      ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT) {
+    memset(table.at(target_parameter_name).data, 0,
+           sizeof(float) * table.at(target_parameter_name).total_size);
+  } else if (table.at(target_parameter_name).data_type ==
+                 ::onnx::TensorProto_DataType::TensorProto_DataType_INT8 ||
+             table.at(target_parameter_name).data_type ==
+                 ::onnx::TensorProto_DataType::TensorProto_DataType_INT16 ||
+             table.at(target_parameter_name).data_type ==
+                 ::onnx::TensorProto_DataType::TensorProto_DataType_INT32) {
+    memset(table.at(target_parameter_name).data, 0,
+           sizeof(int) * table.at(target_parameter_name).total_size);
+  } else if (table.at(target_parameter_name).data_type ==
+             ::onnx::TensorProto_DataType::TensorProto_DataType_INT64) {
+    memset(table.at(target_parameter_name).data, 0,
+           sizeof(long) * table.at(target_parameter_name).total_size);
+  } else {
+    throw std::runtime_error(
+        "un supported type: " +
+        std::to_string(table.at(target_parameter_name).data_type));
+  }
+}
+
+void initialize_parameter_table(
     ::onnx::GraphProto &graph,
     std::map<std::string, inference_engine::onnx::parameter> &table) {
   for (::onnx::TensorProto const &tensor : graph.initializer()) {
@@ -112,7 +138,7 @@ inference_engine::onnx::OP_TYPE convert_op_type(std::string op_type) {
 }
 
 std::vector<inference_engine::onnx::node>
-abstract_all_nodes_from_onnx_model(::onnx::GraphProto &graph) {
+abstract_all_nodes(::onnx::GraphProto &graph) {
   std::vector<inference_engine::onnx::node> nodes;
 
   for (auto const &node : graph.node()) {

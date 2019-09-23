@@ -46,18 +46,15 @@ int main(int argc, char **argv) {
 
   ::onnx::GraphProto graph = model.graph();
   std::vector<inference_engine::onnx::node> nodes =
-      inference_engine::onnx::abstract_all_nodes_from_onnx_model(graph);
+      inference_engine::onnx::abstract_all_nodes(graph);
   std::map<std::string, inference_engine::onnx::parameter> table;
-
-  inference_engine::onnx::abstract_parameter_table_from_onnx_model(graph,
-                                                                   table);
+  inference_engine::onnx::abstract_parameter_table(graph, table);
 
   try {
-    inference_engine::onnx::initialize_parameter_table_from_onnx_model(graph,
-                                                                       table);
+    inference_engine::onnx::initialize_parameter_table(graph, table);
   } catch (std::out_of_range e) {
-    std::cout << "out_of_range at initialize_parameter_table_from_onnx_model: "
-              << e.what() << std::endl;
+    std::cout << "out_of_range at initialize_parameter_table: " << e.what()
+              << std::endl;
     return -1;
   }
 
@@ -76,8 +73,12 @@ int main(int argc, char **argv) {
       k = table.at(node.input[1]).dims[1];
       n = table.at(node.input[0]).dims[0];
 
-      inference_engine::onnx::add_new_parameter(
-          node.output[0], {n, m}, table.at(node.input[0]).data_type, table);
+      if (table.find(node.output[0]) == table.end()) {
+        inference_engine::onnx::add_new_parameter(
+            node.output[0], {n, m}, table.at(node.input[0]).data_type, table);
+      } else {
+        inference_engine::onnx::reset_parameter_data(node.output[0], table);
+      }
 
       inference_engine::backend::gemm(
           m, n, k,
@@ -90,8 +91,12 @@ int main(int argc, char **argv) {
       m = table.at(node.input[0]).dims[0];
       n = table.at(node.input[0]).dims[1];
 
-      inference_engine::onnx::add_new_parameter(
-          node.output[0], {m, n}, table.at(node.input[0]).data_type, table);
+      if (table.find(node.output[0]) == table.end()) {
+        inference_engine::onnx::add_new_parameter(
+            node.output[0], {m, n}, table.at(node.input[0]).data_type, table);
+      } else {
+        inference_engine::onnx::reset_parameter_data(node.output[0], table);
+      }
 
       inference_engine::backend::relu(
           m, n, static_cast<float *>(table.at(node.input[0]).data),
