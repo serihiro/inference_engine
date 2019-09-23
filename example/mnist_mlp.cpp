@@ -1,6 +1,6 @@
 /*
  * This is an example for MNIST + 3 MLP (Gemm + Relu) model.
-*/
+ */
 
 #include <numeric>
 
@@ -10,6 +10,11 @@
 #include "../inference_engine/backend.hpp"
 #include "../inference_engine/image_util.hpp"
 #include "../inference_engine/onnx.hpp"
+
+std::shared_ptr<void> allocate_float_array(long long size) {
+  std::unique_ptr<float[]> u = std::make_unique<float[]>(size);
+  return std::shared_ptr<void>(u.release(), u.get_deleter());
+}
 
 int main(int argc, char **argv) {
   cmdline::parser a;
@@ -33,9 +38,9 @@ int main(int argc, char **argv) {
 
   // convert to 32bit
   image_mat.convertTo(image_mat, CV_32FC3);
-  // FIXME workaround
-  float *image = new float[image_mat.rows * image_mat.cols];
-  memset(image, 0, sizeof(float) * image_mat.rows * image_mat.cols);
+  std::shared_ptr<void> data =
+      allocate_float_array(image_mat.rows * image_mat.cols);
+  float *image = static_cast<float *>(data.get());
   inference_engine::image_util::gray_image_to_hw(image_mat, image);
 
   ::onnx::ModelProto model;
@@ -46,7 +51,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  auto graph = model.graph();
+  ::onnx::GraphProto graph = model.graph();
   std::vector<inference_engine::onnx::node> nodes =
       inference_engine::onnx::abstract_all_nodes_from_onnx_model(graph);
   std::map<std::string, inference_engine::onnx::parameter> table;
@@ -78,14 +83,19 @@ int main(int argc, char **argv) {
   float *output_data;
   int m, n, k;
 
-  for (int i = 0; i < (int)nodes.size(); ++i) {
-    input_name = nodes[i].name;
-    if (nodes[i].op_type == inference_engine::onnx::OP_TYPE::Gemm) {
-      m = table.at(nodes[i].input[1]).dims[0];
-      k = table.at(nodes[i].input[1]).dims[1];
-      n = table.at(nodes[i].input[0]).dims[1];
+  for (inference_engine::onnx::node const &node : nodes) {
+    input_name = node.name;
+    if (node.op_type == inference_engine::onnx::OP_TYPE::Gemm) {
+      m = table.at(node.input[1]).dims[0];
+      k = table.at(node.input[1]).dims[1];
+      n = table.at(node.input[0]).dims[1];
 
-      output_parameter_name = nodes[i].output[0];
+      output_parameter_name = node.output[0];
+
+      // If `output_data` is allocated as a shared_ptr,
+      // the address range of `output_data` is deleted by shared_ptr at ouf of
+      // this loop. So I allocate the memory for `output_data` with `new`, to
+      // prevent deleting. But I think this is not a best way.
       output_data = new float[m * n];
       memset(output_data, 0, sizeof(float) * m * n);
       inference_engine::onnx::parameter output_parameter =
@@ -95,17 +105,20 @@ int main(int argc, char **argv) {
               output_data);
       table.insert(std::make_pair(output_parameter_name, output_parameter));
       inference_engine::backend::gemm(m, n, k,
-                                      table.at(nodes[i].input[1]).data,  // A
-                                      table.at(nodes[i].input[0]).data,  // B
-                                      table.at(nodes[i].output[0]).data, // C
-                                      table.at(nodes[i].input[2]).data   // D
+                                      table.at(node.input[1]).data,  // A
+                                      table.at(node.input[0]).data,  // B
+                                      table.at(node.output[0]).data, // C
+                                      table.at(node.input[2]).data   // D
       );
-    } else if (nodes[i].op_type == inference_engine::onnx::OP_TYPE::Relu) {
-      m = table.at(nodes[i].input[0]).dims[0];
-      n = table.at(nodes[i].input[0]).dims[1];
+    } else if (node.op_type == inference_engine::onnx::OP_TYPE::Relu) {
+      m = table.at(node.input[0]).dims[0];
+      n = table.at(node.input[0]).dims[1];
 
-      output_parameter_name = nodes[i].output[0];
-      // FIXME workaround
+      output_parameter_name = node.output[0];
+      // If `output_data` is allocated as a shared_ptr,
+      // the address range of `output_data` is deleted by shared_ptr at ouf of
+      // this loop. So I allocate the memory for `output_data` with `new`, to
+      // prevent deleting. But I think this is not a best way.
       output_data = new float[m * n];
       memset(output_data, 0, sizeof(float) * m * n);
       inference_engine::onnx::parameter output_parameter =
@@ -116,10 +129,10 @@ int main(int argc, char **argv) {
       table.insert(
           std::make_pair(output_parameter_name, std::move(output_parameter)));
 
-      inference_engine::backend::relu(m, n, table.at(nodes[i].input[0]).data,
-                                      table.at(nodes[i].output[0]).data);
+      inference_engine::backend::relu(m, n, table.at(node.input[0]).data,
+                                      table.at(node.output[0]).data);
     } else {
-      std::cout << "not supported operator: " << nodes[i].op_type << std::endl;
+      std::cout << "not supported operator: " << node.op_type << std::endl;
       return -1;
     }
   }
