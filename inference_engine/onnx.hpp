@@ -13,11 +13,14 @@ struct parameter {
   std::string name;
   std::vector<int> dims;
   ::google::protobuf::int32 data_type;
-  float *data;
+  void *data;
+  long long total_size;
 
   parameter(std::string name, std::vector<int> dims,
-            ::google::protobuf::int32 data_type, float *data)
-      : name(name), dims(dims), data_type(data_type), data(data) {}
+            ::google::protobuf::int32 data_type, void *data,
+            long long total_size)
+      : name(name), dims(dims), data_type(data_type), data(data),
+        total_size(total_size) {}
 };
 
 struct node {
@@ -39,6 +42,19 @@ void unpack_data_from_raw_data(const ::onnx::TensorProto &tensor,
                                void *output);
 
 void abstract_parameter_table_from_onnx_model(
+    ::onnx::GraphProto &graph,
+    std::map<std::string, inference_engine::onnx::parameter> &table);
+
+void abstract_parameters(
+    ::google::protobuf::RepeatedPtrField<::onnx::ValueInfoProto> it,
+    std::map<std::string, inference_engine::onnx::parameter> &table);
+
+void add_new_parameter(
+    std::string parameter_name, std::vector<int> dims,
+    ::google::protobuf::int32 data_type,
+    std::map<std::string, inference_engine::onnx::parameter> &table);
+
+void initialize_parameter_table_from_onnx_model(
     ::onnx::GraphProto &graph,
     std::map<std::string, inference_engine::onnx::parameter> &table);
 

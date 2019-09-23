@@ -39,32 +39,65 @@ void unpack_data_from_raw_data(const ::onnx::TensorProto &tensor,
 void abstract_parameter_table_from_onnx_model(
     ::onnx::GraphProto &graph,
     std::map<std::string, inference_engine::onnx::parameter> &table) {
-  void *data;
-  long long total_size;
-  ::google::protobuf::int32 data_type;
-  std::vector<int> dims;
-  for (::onnx::TensorProto const &tensor : graph.initializer()) {
-    dims = std::vector<int>(tensor.dims().begin(), tensor.dims().end());
-    total_size =
-        std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<int>());
-    data_type = tensor.data_type();
 
-    // FIXME workaround
+  abstract_parameters(graph.input(), table);
+  abstract_parameters(graph.output(), table);
+} // namespace onnx
+
+void abstract_parameters(
+    ::google::protobuf::RepeatedPtrField<::onnx::ValueInfoProto> it,
+    std::map<std::string, inference_engine::onnx::parameter> &table) {
+
+  std::vector<int> dims;
+  for (::onnx::ValueInfoProto const &value_info : it) {
+    dims.clear();
+    for (::onnx::TensorShapeProto_Dimension const &dim :
+         value_info.type().tensor_type().shape().dim()) {
+      dims.push_back(dim.dim_value());
+    }
+    add_new_parameter(value_info.name(), dims,
+                      value_info.type().tensor_type().elem_type(), table);
+  }
+}
+
+void add_new_parameter(
+    std::string parameter_name, std::vector<int> dims,
+    ::google::protobuf::int32 data_type,
+    std::map<std::string, inference_engine::onnx::parameter> &table) {
+
+  void *data;
+  long long total_size =
+      std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<int>());
+  if (data_type == ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT) {
     data = static_cast<void *>(new float[total_size]);
     memset(data, 0, sizeof(float) * total_size);
+  } else if (data_type ==
+                 ::onnx::TensorProto_DataType::TensorProto_DataType_INT8 ||
+             data_type ==
+                 ::onnx::TensorProto_DataType::TensorProto_DataType_INT16 ||
+             data_type ==
+                 ::onnx::TensorProto_DataType::TensorProto_DataType_INT32) {
+    data = static_cast<void *>(new int[total_size]);
+    memset(data, 0, sizeof(int) * total_size);
+  } else if (data_type ==
+             ::onnx::TensorProto_DataType::TensorProto_DataType_INT64) {
+    data = static_cast<void *>(new long[total_size]);
+    memset(data, 0, sizeof(long) * total_size);
+  } else {
+    throw std::runtime_error("un supported type: " + std::to_string(data_type));
+  }
 
-    // TODO I want to abstract typename
-    if (data_type == ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT) {
-      unpack_data_from_raw_data(tensor, total_size, data);
-    } else {
-      throw std::runtime_error("un supported type: " +
-                               std::to_string(data_type));
-    }
+  table.insert(std::make_pair(
+      parameter_name, inference_engine::onnx::parameter(
+                          parameter_name, dims, data_type, data, total_size)));
+}
 
-    table.insert(std::make_pair(
-        tensor.name(),
-        inference_engine::onnx::parameter(tensor.name(), dims, data_type,
-                                          static_cast<float *>(data))));
+void initialize_parameter_table_from_onnx_model(
+    ::onnx::GraphProto &graph,
+    std::map<std::string, inference_engine::onnx::parameter> &table) {
+  for (::onnx::TensorProto const &tensor : graph.initializer()) {
+    unpack_data_from_raw_data(tensor, table.at(tensor.name()).total_size,
+                              table.at(tensor.name()).data);
   }
 }
 

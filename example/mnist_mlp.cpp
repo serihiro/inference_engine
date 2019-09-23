@@ -36,13 +36,6 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  // convert to 32bit
-  image_mat.convertTo(image_mat, CV_32FC3);
-  std::shared_ptr<void> data =
-      allocate_float_array(image_mat.rows * image_mat.cols);
-  float *image = static_cast<float *>(data.get());
-  inference_engine::image_util::gray_image_to_hw(image_mat, image);
-
   ::onnx::ModelProto model;
   try {
     model = inference_engine::onnx::load_onnx_model_from_file(model_path);
@@ -55,82 +48,54 @@ int main(int argc, char **argv) {
   std::vector<inference_engine::onnx::node> nodes =
       inference_engine::onnx::abstract_all_nodes_from_onnx_model(graph);
   std::map<std::string, inference_engine::onnx::parameter> table;
+
   inference_engine::onnx::abstract_parameter_table_from_onnx_model(graph,
                                                                    table);
 
-  std::string first_input_name = graph.input()[graph.input_size() - 1].name();
-  int first_input_hight = graph.input()[graph.input_size() - 1]
-                              .type()
-                              .tensor_type()
-                              .shape()
-                              .dim(1)
-                              .dim_value();
-  int first_input_width = graph.input()[graph.input_size() - 1]
-                              .type()
-                              .tensor_type()
-                              .shape()
-                              .dim(0)
-                              .dim_value();
+  try {
+    inference_engine::onnx::initialize_parameter_table_from_onnx_model(graph,
+                                                                       table);
+  } catch (std::out_of_range e) {
+    std::cout << "out_of_range at initialize_parameter_table_from_onnx_model: "
+              << e.what() << std::endl;
+    return -1;
+  }
 
-  inference_engine::onnx::parameter input_parameter =
-      inference_engine::onnx::parameter(
-          first_input_name, {first_input_hight, first_input_width},
-          ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT, image);
-  table.insert(std::make_pair(first_input_name, input_parameter));
+  // convert to 32bit
+  image_mat.convertTo(image_mat, CV_32FC3);
+  std::shared_ptr<void> data =
+      allocate_float_array(image_mat.rows * image_mat.cols);
+  float *image = static_cast<float *>(data.get());
+  inference_engine::image_util::gray_image_to_hw(image_mat, image);
+  table.at(nodes[0].input[0]).data = image;
 
-  std::string input_name;
-  std::string output_parameter_name;
-  float *output_data;
   int m, n, k;
-
   for (inference_engine::onnx::node const &node : nodes) {
-    input_name = node.name;
     if (node.op_type == inference_engine::onnx::OP_TYPE::Gemm) {
       m = table.at(node.input[1]).dims[0];
       k = table.at(node.input[1]).dims[1];
-      n = table.at(node.input[0]).dims[1];
+      n = table.at(node.input[0]).dims[0];
 
-      output_parameter_name = node.output[0];
+      inference_engine::onnx::add_new_parameter(
+          node.output[0], {n, m}, table.at(node.input[0]).data_type, table);
 
-      // If `output_data` is allocated as a shared_ptr,
-      // the address range of `output_data` is deleted by shared_ptr at ouf of
-      // this loop. So I allocate the memory for `output_data` with `new`, to
-      // prevent deleting. But I think this is not a best way.
-      output_data = new float[m * n];
-      memset(output_data, 0, sizeof(float) * m * n);
-      inference_engine::onnx::parameter output_parameter =
-          inference_engine::onnx::parameter(
-              output_parameter_name, {m, n},
-              ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT,
-              output_data);
-      table.insert(std::make_pair(output_parameter_name, output_parameter));
-      inference_engine::backend::gemm(m, n, k,
-                                      table.at(node.input[1]).data,  // A
-                                      table.at(node.input[0]).data,  // B
-                                      table.at(node.output[0]).data, // C
-                                      table.at(node.input[2]).data   // D
+      inference_engine::backend::gemm(
+          m, n, k,
+          static_cast<float *>(table.at(node.input[1]).data),  // A
+          static_cast<float *>(table.at(node.input[0]).data),  // B
+          static_cast<float *>(table.at(node.output[0]).data), // C
+          static_cast<float *>(table.at(node.input[2]).data)   // D
       );
     } else if (node.op_type == inference_engine::onnx::OP_TYPE::Relu) {
       m = table.at(node.input[0]).dims[0];
       n = table.at(node.input[0]).dims[1];
 
-      output_parameter_name = node.output[0];
-      // If `output_data` is allocated as a shared_ptr,
-      // the address range of `output_data` is deleted by shared_ptr at ouf of
-      // this loop. So I allocate the memory for `output_data` with `new`, to
-      // prevent deleting. But I think this is not a best way.
-      output_data = new float[m * n];
-      memset(output_data, 0, sizeof(float) * m * n);
-      inference_engine::onnx::parameter output_parameter =
-          inference_engine::onnx::parameter(
-              output_parameter_name, {m, n},
-              ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT,
-              output_data);
-      table.insert(
-          std::make_pair(output_parameter_name, std::move(output_parameter)));
+      inference_engine::onnx::add_new_parameter(
+          node.output[0], {m, n}, table.at(node.input[0]).data_type, table);
 
-      inference_engine::backend::relu(m, n, table.at(node.input[0]).data,
-                                      table.at(node.output[0]).data);
+      inference_engine::backend::relu(
+          m, n, static_cast<float *>(table.at(node.input[0]).data),
+          static_cast<float *>(table.at(node.output[0]).data));
     } else {
       std::cout << "not supported operator: " << node.op_type << std::endl;
       return -1;
@@ -138,7 +103,9 @@ int main(int argc, char **argv) {
   }
 
   for (int i = 0; i < 10; ++i) {
-    std::cout << table.at(graph.output()[0].name()).data[i] << std::endl;
+    std::cout << static_cast<float *>(
+                     table.at(graph.output()[0].name()).data)[i]
+              << std::endl;
   }
 
   return 0;
