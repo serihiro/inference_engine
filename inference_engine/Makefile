@@ -12,7 +12,7 @@ image_util.o: image_util.cpp
 naive_backend.o: naive_backend.cpp
 	$(CC) $^ $(CFLAGS) -o $@ -c
 
-onnx.o: onnx.cpp
+onnx.o: onnx.cpp	onnx_client.o
 	$(CC) $^ $(CFLAGS) -o $@ -c
 
 onnx_client.o: ../external/onnx/onnx/onnx.pb.cc
