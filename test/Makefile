@@ -1,6 +1,6 @@
 SRC = ../inference_engine
 CC = clang++
-CFLAGS = -std=c++14 -g3 -O2 -Wall -Wextra `pkg-config --cflags protobuf` `pkg-config --cflags opencv4`
+CFLAGS = -std=c++14 -g3 -O2 -Wall -Wextra  -fsanitize=address  `pkg-config --cflags protobuf` `pkg-config --cflags opencv4`
 INCLUDE = `pkg-config --libs protobuf` `pkg-config --libs opencv4`
 SRCS=$(wildcard *.cpp)
 HEADERS=$(wildcard *.hpp)
@@ -9,9 +9,9 @@ HEADERS=$(wildcard *.hpp)
 main:
 	@make clean
 	@make test_naive_backend.o
-	@make test_image_util.o
-	./test_naive_backend.o
-	./test_image_util.o
+	./test_naive_backend.o -s
+	# @make test_image_util.o
+	# ./test_image_util.o -s
 
 test_image_util.o:	test_image_util.cpp util.o image_util.o
 	$(CC) $^ $(CFLAGS) $(INCLUDE) -o $@
