@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <memory>
+#include <random>
 
 namespace inference_engine {
 namespace backend {
@@ -207,6 +208,23 @@ void max_pool(int c, int x_h, int x_w, int y_h, int y_w, int k, int pad,
           }
         }
         y[target_y_index] = max_element;
+      }
+    }
+  }
+}
+
+void drop_out(int c, int h, int w, float ratio, float *x, float *y,
+              float *mask) {
+  std::default_random_engine generator;
+  std::binomial_distribution<int> distribution(1, 1.0 - ratio);
+
+  long target_index = 0l;
+  for (int cc = 0; cc < c; ++cc) {
+    for (int hh = 0; hh < h; ++hh) {
+      for (int ww = 0; ww < w; ++ww) {
+        target_index = (cc * h * w) + (hh * w) + ww;
+        mask[target_index] = distribution(generator);
+        y[target_index] = x[target_index] * mask[target_index];
       }
     }
   }

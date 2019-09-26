@@ -45,6 +45,18 @@ void conv(int c_in, int c_out, int x_h, int x_w, int y_h, int y_w, int k,
 //   and y_w is `floor((x_w - k + 2 * pad) / float(stride)) + 1`
 void max_pool(int c, int x_h, int x_w, int y_h, int y_w, int k, int pad,
               int stride, float *x, float *y);
+
+// Apply Dropout
+// int c: the size of channel size of input x, output y, and output mask
+// int h: the size of height of input x, output y, and output mask
+// int w: the size of width of input x, output y, and output mask
+// float ratio: the ratio of random dropout. Note that this parameter is
+//    used for sampling from binomial distribution to generate a 0/1 mask.
+// float *x: the input array with c * h * w
+// float *y: the output array with c * h * w
+// float *mask: the output array with c * h * w
+void drop_out(int c, int h, int w, float ratio, float *x, float *y,
+              float *mask);
 } // namespace backend
 } // namespace inference_engine
 

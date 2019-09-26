@@ -25,7 +25,7 @@ void array_full(float *a, int n, float v) {
 
 void array_zeros(float *a, int n) { array_full(a, n, 0.0); }
 
-TEST_CASE("relu", "[inference_engine::backend::relu]") {
+TEST_CASE("relu") {
   SECTION("case 1") {
     float result[4];
     float test[4] = {-1.0, 1.0, 0.0, 0.5};
@@ -47,7 +47,7 @@ TEST_CASE("relu", "[inference_engine::backend::relu]") {
   }
 }
 
-TEST_CASE("gemm", "[inference_engine::backend::gemm]") {
+TEST_CASE("gemm") {
   SECTION("case 1") {
     int m = 2;
     int k = 2;
@@ -133,7 +133,7 @@ TEST_CASE("gemm", "[inference_engine::backend::gemm]") {
   }
 }
 
-TEST_CASE("conv", "[conv]") {
+TEST_CASE("conv") {
   SECTION("1x3x3 image, 1x2x2 kernel") {
     int c_in = 1;
     int c_out = 1;
@@ -541,7 +541,7 @@ TEST_CASE("conv", "[conv]") {
   }
 }
 
-TEST_CASE("max_pool", "[inference_engine::backend::max_pool]") {
+TEST_CASE("max_pool") {
   SECTION("1x3x3 image, 1x1 kernel") {
     int c = 1;
     int x_h = 3;
@@ -768,5 +768,106 @@ TEST_CASE("max_pool", "[inference_engine::backend::max_pool]") {
                                                           c * y_h * y_w));
     delete[] x;
     delete[] y;
+  }
+}
+
+TEST_CASE("drop_out") {
+  SECTION("1x100x100 image, ratio 0.5") {
+    int c = 1;
+    int h = 100;
+    int w = 100;
+    float ratio = 0.5;
+    float *x = new float[c * h * w];
+    float *y = new float[c * h * w];
+    float *mask = new float[c * h * w];
+    array_full(x, c * h * w, 2.0);
+    array_zeros(y, c * h * w);
+    array_zeros(mask, c * h * w);
+    inference_engine::backend::drop_out(c, h, w, ratio, x, y, mask);
+
+    int zero_count = 0;
+    int as_is_count = 0;
+    int other_count = 0;
+
+    for (int i = 0; i < c * h * w; ++i) {
+      if (y[i] == 0) {
+        ++zero_count;
+      } else if (y[i] == 2.0) {
+        ++as_is_count;
+      } else {
+        ++other_count;
+      }
+    }
+
+    REQUIRE(other_count == 0);
+    REQUIRE(zero_count + as_is_count == c * h * w);
+    REQUIRE(c * h * w * (ratio - 0.05) < zero_count);
+    REQUIRE(zero_count < c * h * w * (ratio + 0.05));
+  }
+
+  SECTION("3x100x100 image, ratio 0.5") {
+    int c = 3;
+    int h = 100;
+    int w = 100;
+    float ratio = 0.5;
+    float *x = new float[c * h * w];
+    float *y = new float[c * h * w];
+    float *mask = new float[c * h * w];
+    array_full(x, c * h * w, 2.0);
+    array_zeros(y, c * h * w);
+    array_zeros(mask, c * h * w);
+    inference_engine::backend::drop_out(c, h, w, ratio, x, y, mask);
+
+    int zero_count = 0;
+    int as_is_count = 0;
+    int other_count = 0;
+
+    for (int i = 0; i < c * h * w; ++i) {
+      if (y[i] == 0) {
+        ++zero_count;
+      } else if (y[i] == 2.0) {
+        ++as_is_count;
+      } else {
+        ++other_count;
+      }
+    }
+
+    REQUIRE(other_count == 0);
+    REQUIRE(zero_count + as_is_count == c * h * w);
+    REQUIRE(c * h * w * (ratio - 0.05) < zero_count);
+    REQUIRE(zero_count < c * h * w * (ratio + 0.05));
+  }
+
+  SECTION("3x100x100 image, ratio 0.3") {
+    int c = 3;
+    int h = 100;
+    int w = 100;
+    float ratio = 0.3;
+    float *x = new float[c * h * w];
+    float *y = new float[c * h * w];
+    float *mask = new float[c * h * w];
+    array_full(x, c * h * w, 2.0);
+    array_zeros(y, c * h * w);
+    array_zeros(mask, c * h * w);
+    inference_engine::backend::drop_out(c, h, w, ratio, x, y, mask);
+
+    int zero_count = 0;
+    int as_is_count = 0;
+    int other_count = 0;
+
+    for (int i = 0; i < c * h * w; ++i) {
+      if (y[i] == 0) {
+        ++zero_count;
+      } else if (y[i] == 2.0) {
+        ++as_is_count;
+      } else {
+        ++other_count;
+      }
+    }
+
+    REQUIRE(other_count == 0);
+    REQUIRE(zero_count + as_is_count == c * h * w);
+    REQUIRE(c * h * w * (ratio - 0.05) < zero_count);
+    REQUIRE(zero_count < c * h * w * (ratio + 0.05));
   }
 }
