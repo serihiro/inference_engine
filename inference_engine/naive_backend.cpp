@@ -60,13 +60,14 @@ void conv_with_padding(int c_in, int c_out, int x_h, int x_w, int y_h, int y_w,
     }
   }
 
-  for (int cc_in = 0; cc_in < c_in; ++cc_in) {
-    for (int cc_out = 0; cc_out < c_out; ++cc_out) {
-      for (int yy_h = 0; yy_h < y_h; ++yy_h) {
-        for (int yy_w = 0; yy_w < y_w; ++yy_w) {
-          target_y_index = (cc_out * y_h * y_w) + (yy_h * y_w) + yy_w;
+  for (int cc_out = 0; cc_out < c_out; ++cc_out) {
+    for (int yy_h = 0; yy_h < y_h; ++yy_h) {
+      for (int yy_w = 0; yy_w < y_w; ++yy_w) {
+        target_y_index = (cc_out * y_h * y_w) + (yy_h * y_w) + yy_w;
+        y[target_y_index] += b[cc_out];
 
-          for (int k_h = 0; k_h < k; ++k_h) {
+        for (int k_h = 0; k_h < k; ++k_h) {
+          for (int cc_in = 0; cc_in < c_in; ++cc_in) {
             target_x_index_offset = (cc_in * (padded_height) * (padded_width)) +
                                     ((yy_h * stride + k_h) * (padded_width)) +
                                     yy_w * stride;
@@ -78,7 +79,6 @@ void conv_with_padding(int c_in, int c_out, int x_h, int x_w, int y_h, int y_w,
                                    w[target_w_index_offset + k_w];
             }
           }
-          y[target_y_index] += b[cc_out];
         }
       }
     }
@@ -100,13 +100,14 @@ void conv(int c_in, int c_out, int x_h, int x_w, int y_h, int y_w, int k,
   long target_x_index_offset = 0l;
   long target_w_index_offset = 0l;
 
-  for (int cc_in = 0; cc_in < c_in; ++cc_in) {
-    for (int cc_out = 0; cc_out < c_out; ++cc_out) {
-      for (int yy_h = 0; yy_h < y_h; ++yy_h) {
-        for (int yy_w = 0; yy_w < y_w; ++yy_w) {
-          target_y_index = (cc_out * y_h * y_w) + (yy_h * y_w) + yy_w;
+  for (int cc_out = 0; cc_out < c_out; ++cc_out) {
+    for (int yy_h = 0; yy_h < y_h; ++yy_h) {
+      for (int yy_w = 0; yy_w < y_w; ++yy_w) {
+        target_y_index = (cc_out * y_h * y_w) + (yy_h * y_w) + yy_w;
+        y[target_y_index] += b[cc_out];
 
-          for (int k_h = 0; k_h < k; ++k_h) {
+        for (int k_h = 0; k_h < k; ++k_h) {
+          for (int cc_in = 0; cc_in < c_in; ++cc_in) {
             target_x_index_offset = (cc_in * x_h * x_w) +
                                     ((yy_h * stride + k_h) * x_w) +
                                     yy_w * stride;
@@ -118,7 +119,6 @@ void conv(int c_in, int c_out, int x_h, int x_w, int y_h, int y_w, int k,
                                    w[target_w_index_offset + k_w];
             }
           }
-          y[target_y_index] += b[cc_out];
         }
       }
     }

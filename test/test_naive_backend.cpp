@@ -243,10 +243,13 @@ TEST_CASE("conv", "[conv]") {
     float *b = new float[c_out];
     float expected[9] = {44.0,  68.0,  92.0,  284.0, 308.0,
                          332.0, 524.0, 548.0, 572.0};
+    for(int i=0; i<9; ++i){
+      expected[i] += 0.125;
+    }
     array_arange(x, c_in * x_h * x_w);
     array_full(w, c_out * c_in * k * k, 2.0);
     array_zeros(y, c_out * y_h * y_w);
-    array_zeros(b, c_out);
+    array_full(b, c_out, 0.125);
 
     inference_engine::backend::conv(c_in, c_out, x_h, x_w, y_h, y_w, k, pad,
                                     stride, x, w, b, y);
@@ -515,10 +518,16 @@ TEST_CASE("conv", "[conv]") {
         0.0,    0.0,    4236.0, 4308.0, 4380.0, 0.0,    0.0,    0.0,    0.0,
         0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
         0.0,    0.0,    0.0};
+
+    // bias
+    for(int i=0; i<147; ++i){
+      expected[i] += 0.125;
+    }
+    
     array_arange(x, c_in * x_h * x_w);
     array_full(w, c_out * c_in * k * k, 2.0);
     array_zeros(y, c_out * y_h * y_w);
-    array_zeros(b, c_out);
+    array_full(b, c_out, 0.125);
 
     inference_engine::backend::conv(c_in, c_out, x_h, x_w, y_h, y_w, k, pad,
                                     stride, x, w, b, y);
