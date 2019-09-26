@@ -243,7 +243,7 @@ TEST_CASE("conv", "[conv]") {
     float *b = new float[c_out];
     float expected[9] = {44.0,  68.0,  92.0,  284.0, 308.0,
                          332.0, 524.0, 548.0, 572.0};
-    for(int i=0; i<9; ++i){
+    for (int i = 0; i < 9; ++i) {
       expected[i] += 0.125;
     }
     array_arange(x, c_in * x_h * x_w);
@@ -520,10 +520,10 @@ TEST_CASE("conv", "[conv]") {
         0.0,    0.0,    0.0};
 
     // bias
-    for(int i=0; i<147; ++i){
+    for (int i = 0; i < 147; ++i) {
       expected[i] += 0.125;
     }
-    
+
     array_arange(x, c_in * x_h * x_w);
     array_full(w, c_out * c_in * k * k, 2.0);
     array_zeros(y, c_out * y_h * y_w);
@@ -538,5 +538,235 @@ TEST_CASE("conv", "[conv]") {
     delete[] w;
     delete[] y;
     delete[] b;
+  }
+}
+
+TEST_CASE("max_pool", "[inference_engine::backend::max_pool]") {
+  SECTION("1x3x3 image, 1x1 kernel") {
+    int c = 1;
+    int x_h = 3;
+    int x_w = 3;
+    int k = 1;
+    int pad = 0;
+    int stride = 1;
+    int y_h = 3;
+    int y_w = 3;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[9] = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("1x4x4 image, 2x2 kernel") {
+    int c = 1;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 0;
+    int stride = 1;
+    int y_h = 3;
+    int y_w = 3;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[9] = {5.0, 6.0, 7.0, 9.0, 10.0, 11.0, 13.0, 14.0, 15.0};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("2x4x4 image, 2x2 kernel") {
+    int c = 2;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 0;
+    int stride = 1;
+    int y_h = 3;
+    int y_w = 3;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[18] = {5.0,  6.0,  7.0,  9.0,  10.0, 11.0, 13.0, 14.0, 15.0,
+                          21.0, 22.0, 23.0, 25.0, 26.0, 27.0, 29.0, 30.0, 31.0};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("1x4x4 image, 2x2 kernel, 1 padding") {
+    int c = 1;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 1;
+    int stride = 1;
+    int y_h = 5;
+    int y_w = 5;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[25] = {0,  1,  2,  3,  3,  4,  5,  6,  7,  7,  8,  9, 10,
+                          11, 11, 12, 13, 14, 15, 15, 12, 13, 14, 15, 15};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("1x4x4 image, 2x2 kernel, 2 padding") {
+    int c = 1;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 2;
+    int stride = 1;
+    int y_h = 7;
+    int y_w = 7;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[49] = {0,  0,  0, 0,  0,  0,  0,  0,  0, 1, 2,  3,  3,
+                          0,  0,  4, 5,  6,  7,  7,  0,  0, 8, 9,  10, 11,
+                          11, 0,  0, 12, 13, 14, 15, 15, 0, 0, 12, 13, 14,
+                          15, 15, 0, 0,  0,  0,  0,  0,  0, 0};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("1x4x4 image, 2x2 kernel, 2 stride") {
+    int c = 1;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 0;
+    int stride = 2;
+    int y_h = 2;
+    int y_w = 2;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[4] = {5.0, 7.0, 13.0, 15.0};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("1x4x4 image, 2x2 kernel, 1 padding, 2 stride") {
+    int c = 1;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 1;
+    int stride = 2;
+    int y_h = 3;
+    int y_w = 3;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[9] = {0.0, 2.0, 3.0, 8.0, 10.0, 11.0, 12.0, 14.0, 15.0};
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("2x4x4 image, 2x2 kernel, 1 padding") {
+    int c = 2;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 1;
+    int stride = 1;
+    int y_h = 5;
+    int y_w = 5;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[50] = {0,  1,  2,  3,  3,  4,  5,  6,  7,  7,  8,  9,  10,
+                          11, 11, 12, 13, 14, 15, 15, 12, 13, 14, 15, 15,
+
+                          16, 17, 18, 19, 19, 20, 21, 22, 23, 23, 24, 25, 26,
+                          27, 27, 28, 29, 30, 31, 31, 28, 29, 30, 31, 31};
+
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
+  }
+
+  SECTION("2x4x4 image, 2x2 kernel, 1 padding, 2 stride") {
+    int c = 2;
+    int x_h = 4;
+    int x_w = 4;
+    int k = 2;
+    int pad = 1;
+    int stride = 2;
+    int y_h = 3;
+    int y_w = 3;
+    float *x = new float[c * x_h * x_w];
+    float *y = new float[c * y_h * y_w];
+    float expected[18] = {0.0,  2.0,  3.0,  8.0,  10.0, 11.0, 12.0, 14.0, 15.0,
+                          16.0, 18.0, 19.0, 24.0, 26.0, 27.0, 28.0, 30.0, 31.0};
+
+    array_arange(x, c * x_h * x_w);
+    array_zeros(y, c * y_h * y_w);
+
+    inference_engine::backend::max_pool(c, x_h, x_w, y_h, y_w, k, pad, stride,
+                                        x, y);
+
+    REQUIRE(inference_engine::test::assert_array_eq_float(y, expected,
+                                                          c * y_h * y_w));
+    delete[] x;
+    delete[] y;
   }
 }

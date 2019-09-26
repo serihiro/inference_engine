@@ -125,5 +125,92 @@ void conv(int c_in, int c_out, int x_h, int x_w, int y_h, int y_w, int k,
   }
 }
 
+constexpr float MAX_POOL_INITIAL_MAX_ELEMENT = 1 << 31;
+
+void max_pool_with_padding(int c, int x_h, int x_w, int y_h, int y_w, int k,
+                           int pad, int stride, float *x, float *y) {
+
+  long padded_height = x_h + 2 * pad;
+  long padded_width = x_w + 2 * pad;
+  long long total_padded_x_size = c * padded_height * padded_width;
+
+  std::unique_ptr<float[]> padded_x =
+      std::make_unique<float[]>(total_padded_x_size);
+  memset(padded_x.get(), 0, sizeof(float) * total_padded_x_size);
+
+  long target_x_index_offset = 0l;
+  long target_padded_x_index_offset = 0l;
+  long target_y_index = 0l;
+
+  for (int cc = 0; cc < c; ++cc) {
+    for (int xx_h = 0; xx_h < x_h; ++xx_h) {
+      target_padded_x_index_offset = (cc * (padded_height) * (padded_width)) +
+                                     ((xx_h + pad) * (padded_width)) + pad;
+      target_x_index_offset = (cc * x_h * x_w) + (xx_h * x_w);
+
+      for (int xx_w = 0; xx_w < x_w; ++xx_w) {
+        padded_x.get()[target_padded_x_index_offset + xx_w] =
+            x[target_x_index_offset + xx_w];
+      }
+    }
+  }
+
+  float max_element = inference_engine::backend::MAX_POOL_INITIAL_MAX_ELEMENT;
+
+  for (int cc = 0; cc < c; ++cc) {
+    for (int yy_h = 0; yy_h < y_h; ++yy_h) {
+      for (int yy_w = 0; yy_w < y_w; ++yy_w) {
+        max_element = inference_engine::backend::MAX_POOL_INITIAL_MAX_ELEMENT;
+        target_y_index = (cc * y_h * y_w) + (yy_h * y_w) + yy_w;
+
+        for (int k_h = 0; k_h < k; ++k_h) {
+          target_x_index_offset = (cc * padded_height * padded_width) +
+                                  ((yy_h * stride + k_h) * padded_width) +
+                                  yy_w * stride;
+
+          for (int k_w = 0; k_w < k; ++k_w) {
+            max_element = std::max(padded_x.get()[target_x_index_offset + k_w],
+                                   max_element);
+          }
+        }
+        y[target_y_index] = max_element;
+      }
+    }
+  }
+}
+
+void max_pool(int c, int x_h, int x_w, int y_h, int y_w, int k, int pad,
+              int stride, float *x, float *y) {
+  assert(k <= x_h && k <= x_w);
+  assert(y_h == floor((x_h - k + 2 * pad) / float(stride)) + 1);
+  assert(y_w == floor((x_w - k + 2 * pad) / float(stride)) + 1);
+
+  if (pad > 0) {
+    return max_pool_with_padding(c, x_h, x_w, y_h, y_w, k, pad, stride, x, y);
+  }
+
+  float max_element = inference_engine::backend::MAX_POOL_INITIAL_MAX_ELEMENT;
+  long target_y_index = 0l;
+  long target_x_index_offset = 0l;
+  for (int cc = 0; cc < c; ++cc) {
+    for (int yy_h = 0; yy_h < y_h; ++yy_h) {
+      for (int yy_w = 0; yy_w < y_w; ++yy_w) {
+        max_element = inference_engine::backend::MAX_POOL_INITIAL_MAX_ELEMENT;
+        target_y_index = (cc * y_h * y_w) + (yy_h * y_w) + yy_w;
+
+        for (int k_h = 0; k_h < k; ++k_h) {
+          target_x_index_offset =
+              (cc * x_h * x_w) + ((yy_h * stride + k_h) * x_w) + yy_w * stride;
+
+          for (int k_w = 0; k_w < k; ++k_w) {
+            max_element = std::max(x[target_x_index_offset + k_w], max_element);
+          }
+        }
+        y[target_y_index] = max_element;
+      }
+    }
+  }
+}
+
 } // namespace backend
 } // namespace inference_engine
