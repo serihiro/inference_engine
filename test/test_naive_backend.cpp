@@ -31,7 +31,7 @@ TEST_CASE("relu") {
     float result[4];
     float test[4] = {-1.0, 1.0, 0.0, 0.5};
     float expected[4] = {0.0, 1.0, 0.0, 0.5};
-    inference_engine::backend::relu(2, 2, test, result);
+    inference_engine::backend::relu(2 * 2, test, result);
 
     REQUIRE(
         inference_engine::test::assert_array_eq_float(result, expected, 4ll));
@@ -41,7 +41,7 @@ TEST_CASE("relu") {
     float result[4];
     float test[4] = {-1.0, -100.0, 0.0, -0.1};
     float expected[4] = {0.0, 0.0, 0.0, 0.0};
-    inference_engine::backend::relu(2, 2, test, result);
+    inference_engine::backend::relu(2 * 2, test, result);
 
     REQUIRE(
         inference_engine::test::assert_array_eq_float(result, expected, 4ll));

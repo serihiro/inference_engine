@@ -25,8 +25,8 @@ void gemm(int m, int n, int k, float *a, float *b, float *c, float *d) {
   }
 }
 
-void relu(int m, int n, float *a, float *b) {
-  for (long long i = 0; i < m * n; ++i) {
+void relu(long long total_size, float *a, float *b) {
+  for (long long i = 0; i < total_size; ++i) {
     b[i] = std::max(0.0f, a[i]);
   }
 }

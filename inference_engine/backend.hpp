@@ -9,7 +9,7 @@ void gemm(int m, int n, int k, float *a, float *b, float *c, float *d);
 
 // Apply relu function to all elements of matrix a
 // b[m * n] = relu(a[m * n])
-void relu(int m, int n, float *a, float *b);
+void relu(long long total_size, float *a, float *b);
 
 // Apply Conv
 // int x_h/x_w: the size of height and width of input x

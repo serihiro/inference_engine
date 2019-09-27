@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
       }
 
       inference_engine::backend::relu(
-          m, n, static_cast<float *>(table.at(node.input[0]).data),
+          m * n, static_cast<float *>(table.at(node.input[0]).data),
           static_cast<float *>(table.at(node.output[0]).data));
     } else {
       std::cout << "not supported operator: " << node.op_type << std::endl;

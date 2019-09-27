@@ -5,6 +5,8 @@ SRCS=$(wildcard *.cpp)
 OBJS=$(SRCS:.cpp=.o)
 HEADERS=$(wildcard *.hpp)
 
+inferer.o:	inferer.cpp
+	$(CC) $^ $(CFLAGS) -o $@ -c
 
 image_util.o: image_util.cpp
 	$(CC) $^ $(CFLAGS) -o $@ -c
