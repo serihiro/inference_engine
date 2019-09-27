@@ -230,5 +230,13 @@ void drop_out(int c, int h, int w, float ratio, float *x, float *y,
   }
 }
 
+void softmax(int n, float *x, float *y) {
+  float max_value = *std::max_element(x, x + n);
+  std::transform(x, x + n, y,
+                 ([&](float v) -> float { return std::exp(v - max_value); }));
+  float sum_x = std::accumulate(y, y + n, 0.0);
+  std::transform(y, y + n, y, ([&](float v) -> float { return v / sum_x; }));
+}
+
 } // namespace backend
 } // namespace inference_engine

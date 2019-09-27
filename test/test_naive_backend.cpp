@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <string>
 
@@ -869,5 +870,23 @@ TEST_CASE("drop_out") {
     REQUIRE(zero_count + as_is_count == c * h * w);
     REQUIRE(c * h * w * (ratio - 0.05) < zero_count);
     REQUIRE(zero_count < c * h * w * (ratio + 0.05));
+  }
+}
+
+TEST_CASE("softmax") {
+  SECTION("case 1") {
+    float x[10] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0};
+    float y[10];
+
+    inference_engine::backend::softmax(10, x, y);
+
+    float expected[10] = {0.08510981, 0.09406088, 0.10395335, 0.11488622,
+                          0.12696892, 0.11488622, 0.10395335, 0.09406088,
+                          0.08510981, 0.07701054};
+
+    constexpr float e = std::numeric_limits<float>::epsilon();
+    for (int i = 0; i < 10; ++i) {
+      REQUIRE(std::abs(expected[i] - y[i]) < e);
+    }
   }
 }

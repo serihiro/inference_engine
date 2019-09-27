@@ -57,6 +57,12 @@ void max_pool(int c, int x_h, int x_w, int y_h, int y_w, int k, int pad,
 // float *mask: the output array with c * h * w
 void drop_out(int c, int h, int w, float ratio, float *x, float *y,
               float *mask);
+
+// Apply Softmax
+// int n: the size of input x and output y
+// float *x: the input vector with n
+// float *y: the output vector with n
+void softmax(int n, float *x, float *y);
 } // namespace backend
 } // namespace inference_engine
 
