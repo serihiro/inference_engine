@@ -20,7 +20,7 @@ Note that I have tested this script with the ONNX model trained with [Chainer mn
 ```sh
 cd inference_engine/example
 git submodule update
-make mnist_mlp.o
+make release_mnist_mlp.o
 ./mnist_mlp.o -i /path/to/mnist/image -m /path/to/onnx_model
 ```
 
@@ -31,7 +31,7 @@ Note that I have tested this script with the ONNX from [onnx/models](https://git
 ```sh
 cd inference_engine/example
 git submodule update
-make imagenet_vgg19.o
+make release_imagenet_vgg19.o
 imagenet_vgg19.o -i /path/to/image_net/image -m /path/to/onnx_model
 ```
 

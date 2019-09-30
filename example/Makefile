@@ -1,7 +1,15 @@
 CC = clang++
 CFLAGS = -std=c++14 -g3 -O2 -Wall -fsanitize=address -Wextra `pkg-config --cflags protobuf` `pkg-config --cflags opencv4`
+RELEASE_CFLAGS = -std=c++14 -O3 -Wall -Wextra `pkg-config --cflags protobuf` `pkg-config --cflags opencv4`
 INCLUDE = `pkg-config --libs protobuf` `pkg-config --libs opencv4`
 SRC = ../inference_engine
+
+
+release_mnist_mlp.o:	mnist_mlp.cpp $(SRC)/onnx.cpp $(SRC)/naive_backend.cpp $(SRC)/image_util.cpp $(SRC)/inferer.cpp ../external/onnx/onnx/onnx.pb.cc
+	$(CC) $^ $(RELEASE_CFLAGS) $(INCLUDE) $(LIBRARY) -o $@
+
+release_imagenet_vgg19.o:	imagenet_vgg19.cpp $(SRC)/onnx.cpp $(SRC)/naive_backend.cpp $(SRC)/image_util.cpp $(SRC)/inferer.cpp ../external/onnx/onnx/onnx.pb.cc
+	$(CC) $^ $(RELEASE_CFLAGS) $(INCLUDE) $(LIBRARY) -o $@
 
 imagenet_vgg19.o:	imagenet_vgg19.cpp onnx.o onnx_client.o naive_backend.o image_util.o inferer.o
 	$(CC) $^ $(CFLAGS) $(INCLUDE) $(LIBRARY) -o $@
