@@ -75,8 +75,7 @@ int main(int argc, char **argv) {
   inference_engine::image_util::rgb_image_to_chw(image_mat, image);
   table.at(nodes[0].input[0]).data = image;
 
-  int m, n, k, x_h, x_w, c_in, c_out;
-  long stride, pad, kernel;
+  long stride, pad, kernel, m, n, k, x_h, x_w, c_in, c_out;
   for (inference_engine::onnx::node const &node : nodes) {
     if (node.op_type == inference_engine::onnx::OP_TYPE::Conv) {
       c_in = table.at(node.input[0]).dims[1];
@@ -88,7 +87,7 @@ int main(int argc, char **argv) {
       kernel = static_cast<long *>(node.attributes.at("kernel_shape").data)[0];
       assert(c_in == table.at(node.input[1]).dims[1]);
 
-      std::pair<int, int> y_dims =
+      std::pair<long, long> y_dims =
           inference_engine::inferer::calculate_conv_matrix_dims(
               x_h, x_w, kernel, pad, stride);
 
@@ -171,7 +170,7 @@ int main(int argc, char **argv) {
       pad = static_cast<long *>(node.attributes.at("pads").data)[0];
       kernel = static_cast<long *>(node.attributes.at("kernel_shape").data)[0];
 
-      std::pair<int, int> y_dims =
+      std::pair<long, long> y_dims =
           inference_engine::inferer::calculate_conv_matrix_dims(
               x_h, x_w, kernel, pad, stride);
 

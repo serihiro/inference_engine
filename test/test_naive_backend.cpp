@@ -12,19 +12,19 @@
 #include <memory>
 #include <string>
 
-void array_arange(float *a, int n) {
-  for (int i = 0; i < n; ++i) {
+void array_arange(float *a, long n) {
+  for (long i = 0; i < n; ++i) {
     a[i] = float(i);
   }
 }
 
-void array_full(float *a, int n, float v) {
-  for (int i = 0; i < n; ++i) {
+void array_full(float *a, long n, float v) {
+  for (long i = 0; i < n; ++i) {
     a[i] = v;
   }
 }
 
-void array_zeros(float *a, int n) { array_full(a, n, 0.0); }
+void array_zeros(float *a, long n) { array_full(a, n, 0.0); }
 
 TEST_CASE("relu") {
   SECTION("case 1") {
@@ -50,9 +50,9 @@ TEST_CASE("relu") {
 
 TEST_CASE("gemm") {
   SECTION("case 1") {
-    int m = 2;
-    int k = 2;
-    int n = 2;
+    long m = 2;
+    long k = 2;
+    long n = 2;
     float a[m * k];
     float b[k * n];
     float c[m * n];
@@ -69,9 +69,9 @@ TEST_CASE("gemm") {
   }
 
   SECTION("case 2") {
-    int m = 3;
-    int k = 4;
-    int n = 5;
+    long m = 3;
+    long k = 4;
+    long n = 5;
     float a[m * k];
     float b[k * n];
     float c[m * n];
@@ -88,9 +88,9 @@ TEST_CASE("gemm") {
   }
 
   SECTION("case 3") {
-    int m = 10;
-    int k = 10;
-    int n = 1;
+    long m = 10;
+    long k = 10;
+    long n = 1;
     float a[m * k];
     float b[k * n];
     float c[m * n];
@@ -107,9 +107,9 @@ TEST_CASE("gemm") {
   }
 
   SECTION("performance test") {
-    int m = 1024;
-    int k = 1024;
-    int n = 1024;
+    long m = 1024;
+    long k = 1024;
+    long n = 1024;
     // To avoid stack over flow, allocate arrays on heap.
     float *a = new float[m * k];
     float *b = new float[k * n];
@@ -136,15 +136,15 @@ TEST_CASE("gemm") {
 
 TEST_CASE("conv") {
   SECTION("1x3x3 image, 1x2x2 kernel") {
-    int c_in = 1;
-    int c_out = 1;
-    int x_h = 3;
-    int x_w = 3;
-    int k = 2;
-    int stride = 1;
-    int pad = 0;
-    int y_h = 2;
-    int y_w = 2;
+    long c_in = 1;
+    long c_out = 1;
+    long x_h = 3;
+    long x_w = 3;
+    long k = 2;
+    long stride = 1;
+    long pad = 0;
+    long y_h = 2;
+    long y_w = 2;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -167,15 +167,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("1x3x3 image, 1x1x1 kernel") {
-    int c_in = 1;
-    int c_out = 1;
-    int x_h = 3;
-    int x_w = 3;
-    int k = 1;
-    int stride = 1;
-    int pad = 0;
-    int y_h = 3;
-    int y_w = 3;
+    long c_in = 1;
+    long c_out = 1;
+    long x_h = 3;
+    long x_w = 3;
+    long k = 1;
+    long stride = 1;
+    long pad = 0;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -198,15 +198,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("1x3x3 image, 1x2x2 kernel, 2 stride") {
-    int c_in = 1;
-    int c_out = 1;
-    int x_h = 3;
-    int x_w = 3;
-    int k = 2;
-    int stride = 2;
-    int pad = 0;
-    int y_h = 1;
-    int y_w = 1;
+    long c_in = 1;
+    long c_out = 1;
+    long x_h = 3;
+    long x_w = 3;
+    long k = 2;
+    long stride = 2;
+    long pad = 0;
+    long y_h = 1;
+    long y_w = 1;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -229,22 +229,22 @@ TEST_CASE("conv") {
   }
 
   SECTION("1x10x10 image, 1x2x2 kernel, 3 stride") {
-    int c_in = 1;
-    int c_out = 1;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 3;
-    int pad = 0;
-    int y_h = 3;
-    int y_w = 3;
+    long c_in = 1;
+    long c_out = 1;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 3;
+    long pad = 0;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
     float *b = new float[c_out];
     float expected[9] = {44.0,  68.0,  92.0,  284.0, 308.0,
                          332.0, 524.0, 548.0, 572.0};
-    for (int i = 0; i < 9; ++i) {
+    for (long i = 0; i < 9; ++i) {
       expected[i] += 0.125;
     }
     array_arange(x, c_in * x_h * x_w);
@@ -264,15 +264,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("1x10x10 image, 1x2x2 kernel, 1 padding") {
-    int c_in = 1;
-    int c_out = 1;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 1;
-    int pad = 1;
-    int y_h = 11;
-    int y_w = 11;
+    long c_in = 1;
+    long c_out = 1;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 1;
+    long pad = 1;
+    long y_h = 11;
+    long y_w = 11;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -308,15 +308,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("1x10x10 image, 1x2x2 kernel, 2 padding, 3 stride") {
-    int c_in = 1;
-    int c_out = 1;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 3;
-    int pad = 2;
-    int y_h = 5;
-    int y_w = 5;
+    long c_in = 1;
+    long c_out = 1;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 3;
+    long pad = 2;
+    long y_h = 5;
+    long y_w = 5;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -342,15 +342,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("2x10x10 image, 1x2x2 kernel, 0 padding, 1 stride") {
-    int c_in = 2;
-    int c_out = 1;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 1;
-    int pad = 0;
-    int y_h = 9;
-    int y_w = 9;
+    long c_in = 2;
+    long c_out = 1;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 1;
+    long pad = 0;
+    long y_h = 9;
+    long y_w = 9;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -382,15 +382,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("1x10x10 image, 2x2x2 kernel, 0 padding, 1 stride") {
-    int c_in = 1;
-    int c_out = 2;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 1;
-    int pad = 0;
-    int y_h = 9;
-    int y_w = 9;
+    long c_in = 1;
+    long c_out = 2;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 1;
+    long pad = 0;
+    long y_h = 9;
+    long y_w = 9;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -430,15 +430,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("2x10x10 image, 3x2x2 kernel, 0 padding, 1 stride") {
-    int c_in = 2;
-    int c_out = 3;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 1;
-    int pad = 0;
-    int y_h = 9;
-    int y_w = 9;
+    long c_in = 2;
+    long c_out = 3;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 1;
+    long pad = 0;
+    long y_h = 9;
+    long y_w = 9;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -488,15 +488,15 @@ TEST_CASE("conv") {
   }
 
   SECTION("3x10x10 image, 3x2x2 kernel, 5 padding, 3 stride") {
-    int c_in = 3;
-    int c_out = 3;
-    int x_h = 10;
-    int x_w = 10;
-    int k = 2;
-    int stride = 3;
-    int pad = 5;
-    int y_h = 7;
-    int y_w = 7;
+    long c_in = 3;
+    long c_out = 3;
+    long x_h = 10;
+    long x_w = 10;
+    long k = 2;
+    long stride = 3;
+    long pad = 5;
+    long y_h = 7;
+    long y_w = 7;
     float *x = new float[c_in * x_h * x_w];
     float *w = new float[c_out * c_in * k * k];
     float *y = new float[c_out * y_h * y_w];
@@ -521,7 +521,7 @@ TEST_CASE("conv") {
         0.0,    0.0,    0.0};
 
     // bias
-    for (int i = 0; i < 147; ++i) {
+    for (long i = 0; i < 147; ++i) {
       expected[i] += 0.125;
     }
 
@@ -544,14 +544,14 @@ TEST_CASE("conv") {
 
 TEST_CASE("max_pool") {
   SECTION("1x3x3 image, 1x1 kernel") {
-    int c = 1;
-    int x_h = 3;
-    int x_w = 3;
-    int k = 1;
-    int pad = 0;
-    int stride = 1;
-    int y_h = 3;
-    int y_w = 3;
+    long c = 1;
+    long x_h = 3;
+    long x_w = 3;
+    long k = 1;
+    long pad = 0;
+    long stride = 1;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[9] = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
@@ -568,14 +568,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("1x4x4 image, 2x2 kernel") {
-    int c = 1;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 0;
-    int stride = 1;
-    int y_h = 3;
-    int y_w = 3;
+    long c = 1;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 0;
+    long stride = 1;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[9] = {5.0, 6.0, 7.0, 9.0, 10.0, 11.0, 13.0, 14.0, 15.0};
@@ -592,14 +592,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("2x4x4 image, 2x2 kernel") {
-    int c = 2;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 0;
-    int stride = 1;
-    int y_h = 3;
-    int y_w = 3;
+    long c = 2;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 0;
+    long stride = 1;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[18] = {5.0,  6.0,  7.0,  9.0,  10.0, 11.0, 13.0, 14.0, 15.0,
@@ -617,14 +617,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("1x4x4 image, 2x2 kernel, 1 padding") {
-    int c = 1;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 1;
-    int stride = 1;
-    int y_h = 5;
-    int y_w = 5;
+    long c = 1;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 1;
+    long stride = 1;
+    long y_h = 5;
+    long y_w = 5;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[25] = {0,  1,  2,  3,  3,  4,  5,  6,  7,  7,  8,  9, 10,
@@ -642,14 +642,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("1x4x4 image, 2x2 kernel, 2 padding") {
-    int c = 1;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 2;
-    int stride = 1;
-    int y_h = 7;
-    int y_w = 7;
+    long c = 1;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 2;
+    long stride = 1;
+    long y_h = 7;
+    long y_w = 7;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[49] = {0,  0,  0, 0,  0,  0,  0,  0,  0, 1, 2,  3,  3,
@@ -669,14 +669,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("1x4x4 image, 2x2 kernel, 2 stride") {
-    int c = 1;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 0;
-    int stride = 2;
-    int y_h = 2;
-    int y_w = 2;
+    long c = 1;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 0;
+    long stride = 2;
+    long y_h = 2;
+    long y_w = 2;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[4] = {5.0, 7.0, 13.0, 15.0};
@@ -693,14 +693,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("1x4x4 image, 2x2 kernel, 1 padding, 2 stride") {
-    int c = 1;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 1;
-    int stride = 2;
-    int y_h = 3;
-    int y_w = 3;
+    long c = 1;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 1;
+    long stride = 2;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[9] = {0.0, 2.0, 3.0, 8.0, 10.0, 11.0, 12.0, 14.0, 15.0};
@@ -717,14 +717,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("2x4x4 image, 2x2 kernel, 1 padding") {
-    int c = 2;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 1;
-    int stride = 1;
-    int y_h = 5;
-    int y_w = 5;
+    long c = 2;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 1;
+    long stride = 1;
+    long y_h = 5;
+    long y_w = 5;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[50] = {0,  1,  2,  3,  3,  4,  5,  6,  7,  7,  8,  9,  10,
@@ -746,14 +746,14 @@ TEST_CASE("max_pool") {
   }
 
   SECTION("2x4x4 image, 2x2 kernel, 1 padding, 2 stride") {
-    int c = 2;
-    int x_h = 4;
-    int x_w = 4;
-    int k = 2;
-    int pad = 1;
-    int stride = 2;
-    int y_h = 3;
-    int y_w = 3;
+    long c = 2;
+    long x_h = 4;
+    long x_w = 4;
+    long k = 2;
+    long pad = 1;
+    long stride = 2;
+    long y_h = 3;
+    long y_w = 3;
     float *x = new float[c * x_h * x_w];
     float *y = new float[c * y_h * y_w];
     float expected[18] = {0.0,  2.0,  3.0,  8.0,  10.0, 11.0, 12.0, 14.0, 15.0,
@@ -774,9 +774,9 @@ TEST_CASE("max_pool") {
 
 TEST_CASE("drop_out") {
   SECTION("1x100x100 image, ratio 0.5") {
-    int c = 1;
-    int h = 100;
-    int w = 100;
+    long c = 1;
+    long h = 100;
+    long w = 100;
     float ratio = 0.5;
     float *x = new float[c * h * w];
     float *y = new float[c * h * w];
@@ -784,13 +784,13 @@ TEST_CASE("drop_out") {
     array_full(x, c * h * w, 2.0);
     array_zeros(y, c * h * w);
     array_zeros(mask, c * h * w);
-    inference_engine::backend::drop_out(c*h *w, ratio, x, y, mask);
+    inference_engine::backend::drop_out(c * h * w, ratio, x, y, mask);
 
-    int zero_count = 0;
-    int as_is_count = 0;
-    int other_count = 0;
+    long zero_count = 0;
+    long as_is_count = 0;
+    long other_count = 0;
 
-    for (int i = 0; i < c * h * w; ++i) {
+    for (long i = 0; i < c * h * w; ++i) {
       if (y[i] == 0) {
         ++zero_count;
       } else if (y[i] == 2.0) {
@@ -807,9 +807,9 @@ TEST_CASE("drop_out") {
   }
 
   SECTION("3x100x100 image, ratio 0.5") {
-    int c = 3;
-    int h = 100;
-    int w = 100;
+    long c = 3;
+    long h = 100;
+    long w = 100;
     float ratio = 0.5;
     float *x = new float[c * h * w];
     float *y = new float[c * h * w];
@@ -817,13 +817,13 @@ TEST_CASE("drop_out") {
     array_full(x, c * h * w, 2.0);
     array_zeros(y, c * h * w);
     array_zeros(mask, c * h * w);
-    inference_engine::backend::drop_out(c*h*w, ratio, x, y, mask);
+    inference_engine::backend::drop_out(c * h * w, ratio, x, y, mask);
 
-    int zero_count = 0;
-    int as_is_count = 0;
-    int other_count = 0;
+    long zero_count = 0;
+    long as_is_count = 0;
+    long other_count = 0;
 
-    for (int i = 0; i < c * h * w; ++i) {
+    for (long i = 0; i < c * h * w; ++i) {
       if (y[i] == 0) {
         ++zero_count;
       } else if (y[i] == 2.0) {
@@ -840,9 +840,9 @@ TEST_CASE("drop_out") {
   }
 
   SECTION("3x100x100 image, ratio 0.3") {
-    int c = 3;
-    int h = 100;
-    int w = 100;
+    long c = 3;
+    long h = 100;
+    long w = 100;
     float ratio = 0.3;
     float *x = new float[c * h * w];
     float *y = new float[c * h * w];
@@ -850,13 +850,13 @@ TEST_CASE("drop_out") {
     array_full(x, c * h * w, 2.0);
     array_zeros(y, c * h * w);
     array_zeros(mask, c * h * w);
-    inference_engine::backend::drop_out(c*h*w, ratio, x, y, mask);
+    inference_engine::backend::drop_out(c * h * w, ratio, x, y, mask);
 
-    int zero_count = 0;
-    int as_is_count = 0;
-    int other_count = 0;
+    long zero_count = 0;
+    long as_is_count = 0;
+    long other_count = 0;
 
-    for (int i = 0; i < c * h * w; ++i) {
+    for (long i = 0; i < c * h * w; ++i) {
       if (y[i] == 0) {
         ++zero_count;
       } else if (y[i] == 2.0) {
@@ -885,7 +885,7 @@ TEST_CASE("softmax") {
                           0.08510981, 0.07701054};
 
     constexpr float e = std::numeric_limits<float>::epsilon();
-    for (int i = 0; i < 10; ++i) {
+    for (long i = 0; i < 10; ++i) {
       REQUIRE(std::abs(expected[i] - y[i]) < e);
     }
   }

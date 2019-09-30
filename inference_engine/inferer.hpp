@@ -2,7 +2,7 @@
 
 namespace inference_engine {
 namespace inferer {
-std::pair<int, int> calculate_conv_matrix_dims(int h, int w, int k, int pad,
-                                               int stride);
+std::pair<long, long> calculate_conv_matrix_dims(long h, long w, long k,
+                                                 long pad, long stride);
 } // namespace inferer
 } // namespace inference_engine

@@ -72,7 +72,7 @@ void add_new_parameter(
 
   void *data;
   long long total_size =
-      std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<int>());
+      std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<long>());
   if (data_type == ::onnx::TensorProto_DataType::TensorProto_DataType_FLOAT) {
     data = static_cast<void *>(new float[total_size]);
     memset(data, 0, sizeof(float) * total_size);
