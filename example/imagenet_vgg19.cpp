@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
           static_cast<float *>(table.at(node.output[0]).data) // y
       );
     } else if (node.op_type == inference_engine::onnx::OP_TYPE::Reshape) {
-      // TODO Support other than 2 dimension conversion
+      // TODO Support other than 2 dimension matrix
       if (table.find(node.output[0]) == table.end()) {
         inference_engine::onnx::add_new_parameter(
             node.output[0],
@@ -202,7 +202,7 @@ int main(int argc, char **argv) {
 
       table.at(node.output[0]).data = table.at(node.input[0]).data;
     } else if (node.op_type == inference_engine::onnx::OP_TYPE::Dropout) {
-      // TODO Support other than 2 dimension conversion
+      // TODO Support other than 2 dimension matrix
       x_h = table.at(node.input[0]).dims[0];
       x_w = table.at(node.input[0]).dims[1];
       float ratio = static_cast<float *>(node.attributes.at("ratio").data)[0];
@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
       }
 
       inference_engine::backend::drop_out(
-          1, x_h, x_w, ratio,
+          x_h * x_w, ratio,
           static_cast<float *>(table.at(node.input[0]).data),  // x
           static_cast<float *>(table.at(node.output[0]).data), // y
           static_cast<float *>(table.at(node.output[1]).data)  // mask

@@ -52,10 +52,10 @@ void max_pool(int c, int x_h, int x_w, int y_h, int y_w, int k, int pad,
 // int w: the size of width of input x, output y, and output mask
 // float ratio: the ratio of random dropout. Note that this parameter is
 //    used for sampling from binomial distribution to generate a 0/1 mask.
-// float *x: the input array with c * h * w
-// float *y: the output array with c * h * w
-// float *mask: the output array with c * h * w
-void drop_out(int c, int h, int w, float ratio, float *x, float *y,
+// float *x: the input array with n
+// float *y: the output array with n
+// float *mask: the output array with n
+void drop_out(int n, float ratio, float *x, float *y,
               float *mask);
 
 // Apply Softmax

@@ -784,7 +784,7 @@ TEST_CASE("drop_out") {
     array_full(x, c * h * w, 2.0);
     array_zeros(y, c * h * w);
     array_zeros(mask, c * h * w);
-    inference_engine::backend::drop_out(c, h, w, ratio, x, y, mask);
+    inference_engine::backend::drop_out(c*h *w, ratio, x, y, mask);
 
     int zero_count = 0;
     int as_is_count = 0;
@@ -817,7 +817,7 @@ TEST_CASE("drop_out") {
     array_full(x, c * h * w, 2.0);
     array_zeros(y, c * h * w);
     array_zeros(mask, c * h * w);
-    inference_engine::backend::drop_out(c, h, w, ratio, x, y, mask);
+    inference_engine::backend::drop_out(c*h*w, ratio, x, y, mask);
 
     int zero_count = 0;
     int as_is_count = 0;
@@ -850,7 +850,7 @@ TEST_CASE("drop_out") {
     array_full(x, c * h * w, 2.0);
     array_zeros(y, c * h * w);
     array_zeros(mask, c * h * w);
-    inference_engine::backend::drop_out(c, h, w, ratio, x, y, mask);
+    inference_engine::backend::drop_out(c*h*w, ratio, x, y, mask);
 
     int zero_count = 0;
     int as_is_count = 0;
