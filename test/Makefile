@@ -10,8 +10,8 @@ main:
 	@make clean
 	@make test_naive_backend.o
 	./test_naive_backend.o -s
-	# @make test_image_util.o
-	# ./test_image_util.o -s
+	@make test_image_util.o
+	./test_image_util.o -s
 
 test_image_util.o:	test_image_util.cpp util.o image_util.o
 	$(CC) $^ $(CFLAGS) $(INCLUDE) -o $@
