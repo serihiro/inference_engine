@@ -1,3 +1,8 @@
+#ifndef CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_MAIN
+#endif
+
+#include "../external/catch.hpp"
 #include "../inference_engine/image_util.hpp"
 #include "util.hpp"
 #include <iostream>
@@ -27,13 +32,7 @@ bool test_gray_image_to_hw() {
   return true;
 }
 
-int main() {
-  if (!test_gray_image_to_hw()) {
-    std::cout << "test_gray_image_to_hw failed" << std::endl;
-    return 1;
-  }
-
-  std::cout << "all tests are passed" << std::endl;
-
-  return 0;
+TEST_CASE("gray_image_to_hw",
+          "[inference_engine::image_util::gray_image_to_hw]") {
+  SECTION("gray image") { REQUIRE(test_gray_image_to_hw() == true); }
 }

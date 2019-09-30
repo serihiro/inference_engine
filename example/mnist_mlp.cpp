@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
   inference_engine::image_util::gray_image_to_hw(image_mat, image);
   table.at(nodes[0].input[0]).data = image;
 
-  int m, n, k;
+  long m, n, k;
   for (inference_engine::onnx::node const &node : nodes) {
     if (node.op_type == inference_engine::onnx::OP_TYPE::Gemm) {
       m = table.at(node.input[1]).dims[0];
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
       }
 
       inference_engine::backend::relu(
-          m, n, static_cast<float *>(table.at(node.input[0]).data),
+          m * n, static_cast<float *>(table.at(node.input[0]).data),
           static_cast<float *>(table.at(node.output[0]).data));
     } else {
       std::cout << "not supported operator: " << node.op_type << std::endl;

@@ -1,10 +1,12 @@
 CC = clang++
-CFLAGS = -std=c++14 -g3 -O2 -Wall -Wextra `pkg-config --cflags protobuf` `pkg-config --cflags opencv4`
+CFLAGS = -std=c++14 -g3 -O2 -Wall -Wextra  -fsanitize=address  `pkg-config --cflags protobuf` `pkg-config --cflags opencv4`
 INCLUDE = `pkg-config --libs protobuf` `pkg-config --libs opencv4`
 SRCS=$(wildcard *.cpp)
 OBJS=$(SRCS:.cpp=.o)
 HEADERS=$(wildcard *.hpp)
 
+inferer.o:	inferer.cpp
+	$(CC) $^ $(CFLAGS) -o $@ -c
 
 image_util.o: image_util.cpp
 	$(CC) $^ $(CFLAGS) -o $@ -c
