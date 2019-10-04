@@ -10,6 +10,15 @@ namespace onnx {
 
 enum OP_TYPE { Gemm, Relu, Conv, MaxPool, Reshape, Dropout, Softmax };
 
+const std::map<::google::protobuf::string, inference_engine::onnx::OP_TYPE>
+    OP_TYPE_MAP = {{"Gemm", inference_engine::onnx::OP_TYPE::Gemm},
+                   {"Relu", inference_engine::onnx::OP_TYPE::Relu},
+                   {"Conv", inference_engine::onnx::OP_TYPE::Conv},
+                   {"MaxPool", inference_engine::onnx::OP_TYPE::MaxPool},
+                   {"Reshape", inference_engine::onnx::OP_TYPE::Reshape},
+                   {"Dropout", inference_engine::onnx::OP_TYPE::Dropout},
+                   {"Softmax", inference_engine::onnx::OP_TYPE::Softmax}};
+
 struct parameter {
   std::string name;
   std::vector<long> dims;

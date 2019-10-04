@@ -3,6 +3,7 @@
 #include <map>
 #include <memory>
 #include <numeric>
+#include <stdexcept>
 #include <vector>
 
 #include "onnx.hpp"
@@ -153,21 +154,9 @@ void initialize_parameter_table(
 }
 
 inference_engine::onnx::OP_TYPE convert_op_type(std::string op_type) {
-  if (op_type == "Gemm") {
-    return inference_engine::onnx::OP_TYPE::Gemm;
-  } else if (op_type == "Relu") {
-    return inference_engine::onnx::OP_TYPE::Relu;
-  } else if (op_type == "Conv") {
-    return inference_engine::onnx::OP_TYPE::Conv;
-  } else if (op_type == "MaxPool") {
-    return inference_engine::onnx::OP_TYPE::MaxPool;
-  } else if (op_type == "Dropout") {
-    return inference_engine::onnx::OP_TYPE::Dropout;
-  } else if (op_type == "Softmax") {
-    return inference_engine::onnx::OP_TYPE::Softmax;
-  } else if (op_type == "Reshape") {
-    return inference_engine::onnx::OP_TYPE::Reshape;
-  } else {
+  try {
+    return OP_TYPE_MAP.at(op_type);
+  } catch (std::out_of_range &) {
     throw std::runtime_error("node supported op_type: " + op_type);
   }
 }
