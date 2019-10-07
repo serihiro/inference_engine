@@ -49,7 +49,7 @@ void conv_with_padding(long c_in, long c_out, long x_h, long x_w, long y_h,
       target_x_index_offset = (cc_i * x_h * x_w) + (xx_h * x_w);
 
       for (long xx_w = 0; xx_w < x_w; ++xx_w) {
-        padded_x.get()[target_padded_x_index_offset + xx_w] =
+        padded_x[target_padded_x_index_offset + xx_w] =
             x[target_x_index_offset + xx_w];
       }
     }
@@ -70,7 +70,7 @@ void conv_with_padding(long c_in, long c_out, long x_h, long x_w, long y_h,
                 (cc_out * (c_in * k * k)) + (cc_in * k * k) + k_h * k;
 
             for (long k_w = 0; k_w < k; ++k_w) {
-              y[target_y_index] += padded_x.get()[target_x_index_offset + k_w] *
+              y[target_y_index] += padded_x[target_x_index_offset + k_w] *
                                    w[target_w_index_offset + k_w];
             }
           }
@@ -144,7 +144,7 @@ void max_pool_with_padding(long c, long x_h, long x_w, long y_h, long y_w,
       target_x_index_offset = (cc * x_h * x_w) + (xx_h * x_w);
 
       for (long xx_w = 0; xx_w < x_w; ++xx_w) {
-        padded_x.get()[target_padded_x_index_offset + xx_w] =
+        padded_x[target_padded_x_index_offset + xx_w] =
             x[target_x_index_offset + xx_w];
       }
     }
@@ -164,8 +164,8 @@ void max_pool_with_padding(long c, long x_h, long x_w, long y_h, long y_w,
                                   yy_w * stride;
 
           for (long k_w = 0; k_w < k; ++k_w) {
-            max_element = std::max(padded_x.get()[target_x_index_offset + k_w],
-                                   max_element);
+            max_element =
+                std::max(padded_x[target_x_index_offset + k_w], max_element);
           }
         }
         y[target_y_index] = max_element;
