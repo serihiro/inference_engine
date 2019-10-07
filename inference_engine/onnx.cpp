@@ -44,7 +44,7 @@ void abstract_parameter_table(
 
   abstract_parameters(graph.input(), table);
   abstract_parameters(graph.output(), table);
-} // namespace onnx
+}
 
 void abstract_parameters(
     ::google::protobuf::RepeatedPtrField<::onnx::ValueInfoProto> it,
