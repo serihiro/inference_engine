@@ -2,7 +2,7 @@
 #define CATCH_CONFIG_MAIN
 #endif
 
-#include "../external/catch.hpp"
+#include <catch2/catch.hpp>
 #include "../inference_engine/backend.hpp"
 #include "util.hpp"
 #include <chrono>

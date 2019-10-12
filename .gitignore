@@ -75,3 +75,16 @@ Temporary Items
 *.app
 
 data
+build
+
+### https://raw.github.com/github/gitignore/04f8cce96c262006e7cf21f999c6ae7560fc2265/CMake.gitignore
+
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake

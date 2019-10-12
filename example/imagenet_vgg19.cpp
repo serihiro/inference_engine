@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "../external/cmdline.h"
-#include "../external/onnx/onnx/onnx.pb.h"
+#include <onnx/onnx_pb.h>
 
 #include "../inference_engine/backend.hpp"
 #include "../inference_engine/image_util.hpp"
