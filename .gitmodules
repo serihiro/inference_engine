@@ -1,3 +1,6 @@
 [submodule "external/onnx"]
 	path = external/onnx
 	url = git@github.com:onnx/onnx.git
+[submodule "external/Catch2"]
+	path = external/Catch2
+	url = git@github.com:catchorg/Catch2.git

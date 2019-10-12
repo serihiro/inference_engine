@@ -1,7 +1,7 @@
 #ifndef ONNX_HPP
 #define ONNX_HPP
 
-#include "../external/onnx/onnx/onnx.pb.h"
+#include <onnx/onnx_pb.h>
 #include <map>
 #include <vector>
 
