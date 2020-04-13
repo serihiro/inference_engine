@@ -23,8 +23,8 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
-# {Download MNIST data from http://image-net.org/synset}
-# {Resize the images to 224 x 224}
+# {Download images from http://yann.lecun.com/exdb/mnist/}
+# {Convert the binary to jpg image}
 ./example/mnist_mlp.o -i /path/to/mnist/image -m /path/to/onnx_model
 ```
 
@@ -44,9 +44,9 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
-# {Download images from http://yann.lecun.com/exdb/mnist/}
-# {Convert the binary to jpg image}
-./example/mnist_mlp.o -i /path/to/image_net/image -m /path/to/onnx_model
+# {Download imagenet image from http://image-net.org/synset}
+# {Resize the images to 224 x 224}
+./example/imagenet_vgg19.o -i /path/to/image_net/image -m /path/to/onnx_model
 ```
 
 # How to test
