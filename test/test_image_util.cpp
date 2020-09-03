@@ -2,9 +2,9 @@
 #define CATCH_CONFIG_MAIN
 #endif
 
-#include <catch2/catch.hpp>
 #include "../inference_engine/image_util.hpp"
 #include "util.hpp"
+#include <catch2/catch.hpp>
 #include <iostream>
 
 bool test_gray_image_to_hw() {

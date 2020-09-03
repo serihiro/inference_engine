@@ -2,9 +2,9 @@
 #define CATCH_CONFIG_MAIN
 #endif
 
-#include <catch2/catch.hpp>
 #include "../inference_engine/backend.hpp"
 #include "util.hpp"
+#include <catch2/catch.hpp>
 #include <chrono>
 #include <cmath>
 #include <iostream>
