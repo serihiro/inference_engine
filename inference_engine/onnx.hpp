@@ -1,8 +1,8 @@
 #ifndef ONNX_HPP
 #define ONNX_HPP
 
-#include <onnx/onnx_pb.h>
 #include <map>
+#include <onnx/onnx_pb.h>
 #include <vector>
 
 namespace inference_engine {

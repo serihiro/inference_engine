@@ -35,7 +35,6 @@ void conv_with_padding(long c_in, long c_out, long x_h, long x_w, long y_h,
 
   std::unique_ptr<float[]> padded_x =
       std::make_unique<float[]>(total_padded_x_size);
-  memset(padded_x.get(), 0, sizeof(float) * total_padded_x_size);
 
   long target_x_index_offset = 0l;
   long target_padded_x_index_offset = 0l;
@@ -131,7 +130,6 @@ void max_pool_with_padding(long c, long x_h, long x_w, long y_h, long y_w,
 
   std::unique_ptr<float[]> padded_x =
       std::make_unique<float[]>(total_padded_x_size);
-  memset(padded_x.get(), 0, sizeof(float) * total_padded_x_size);
 
   long target_x_index_offset = 0l;
   long target_padded_x_index_offset = 0l;
